@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="FramesGrabber">
+      <UniqueIdentifier>{482c8471-a445-4266-bfe8-751256780904}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SubpixelEstimators">
+      <UniqueIdentifier>{08383054-6da2-4e11-a6f0-3f93fc3abefc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MatchingMethods">
+      <UniqueIdentifier>{f9c207e0-9489-4ef2-b64f-ac335772347f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FeaturesMethods">
+      <UniqueIdentifier>{85d294e5-ea41-4963-b2bd-dacb159af392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Metrics">
+      <UniqueIdentifier>{baad8444-e00c-440c-8771-00a098e471b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Metrics\SimilarityMetrics">
+      <UniqueIdentifier>{adec0052-f02f-48fe-8f6f-960780de0612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Metrics\DissimilarityMetrics">
+      <UniqueIdentifier>{2f355022-8e18-4408-8f3b-6ddba8fec3e8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Method.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FramesGrabberSeq.h">
+      <Filter>FramesGrabber</Filter>
+    </ClInclude>
+    <ClInclude Include="FramesGrabberFactory.h">
+      <Filter>FramesGrabber</Filter>
+    </ClInclude>
+    <ClInclude Include="FramesGrabber.h">
+      <Filter>FramesGrabber</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricsFactory.h">
+      <Filter>Metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="Evaluator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SubPixelEstimator.h">
+      <Filter>SubpixelEstimators</Filter>
+    </ClInclude>
+    <ClInclude Include="Gaussian3.h">
+      <Filter>SubpixelEstimators</Filter>
+    </ClInclude>
+    <ClInclude Include="SubPixelEstimatorsFactory.h">
+      <Filter>SubpixelEstimators</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserSpeckleVelocimeter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MethodsFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FramesGrabberCV.h">
+      <Filter>FramesGrabber</Filter>
+    </ClInclude>
+    <ClInclude Include="MatchingMethod.h">
+      <Filter>MatchingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="FullSearchSpatial.h">
+      <Filter>MatchingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="FullSearchFFT.h">
+      <Filter>MatchingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="FullSearch.h">
+      <Filter>MatchingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="LowResolutionPruning.h">
+      <Filter>MatchingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="FeaturesMethod.h">
+      <Filter>FeaturesMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseOpticalFlow.h">
+      <Filter>FeaturesMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="FeatureMatching.h">
+      <Filter>FeaturesMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="Metric.h">
+      <Filter>Metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="SimilarityMetric.h">
+      <Filter>Metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="DissimilarityMetric.h">
+      <Filter>Metrics</Filter>
+    </ClInclude>
+    <ClInclude Include="ModifiedSpiralSearch.h">
+      <Filter>MatchingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="Gaussian5.h">
+      <Filter>SubpixelEstimators</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricNXC.h">
+      <Filter>Metrics\SimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricXC.h">
+      <Filter>Metrics\SimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricMAD.h">
+      <Filter>Metrics\DissimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricNSSD.h">
+      <Filter>Metrics\DissimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricSAD.h">
+      <Filter>Metrics\DissimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricSSD.h">
+      <Filter>Metrics\DissimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricZNXC.h">
+      <Filter>Metrics\SimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="MetricZXC.h">
+      <Filter>Metrics\SimilarityMetrics</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generateResults.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
