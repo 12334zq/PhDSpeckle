@@ -9,8 +9,8 @@ int main(int argc, char** argv)
 {
 	cout << "Speckle velocimetry - Krzysztof Kotowski\n";
 
-	int method = Method::FEATURE_MATCHING;
-	bool draw = true;
+	int method = Method::OPTICAL_FLOW;
+	bool draw = false;
 	bool evaluate = true;
 	double px2mm = 1.0;
 
@@ -19,12 +19,13 @@ int main(int argc, char** argv)
 	params.templRatio = 0.8;
 	params.maxShift = 0.1;
 	params.layers = 3;
-	params.detector = "BRISK";
+	params.detector = MyFeature2D::FAST;
 	params.maxFeatures = 200;
-	params.RANSAC = 1;
+	params.RANSAC = true;
 	params.matcher = "BruteForce";
 
 	String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\gen10_2\\*.png";
+	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot4_0\\*.png";
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot30_0\\*.png";
 	//String path = "0";
 
@@ -43,7 +44,7 @@ int main(int argc, char** argv)
 	if (argc > 4) params.templRatio = stod(argv[4]);
 	if (argc > 5) params.maxShift = stod(argv[5]);
 	if (argc > 6) params.layers = stoi(argv[6]);
-	if (argc > 7) params.detector = argv[7];
+	if (argc > 7) params.detector = stoi(argv[7]);
 	if (argc > 8) params.maxFeatures = stoi(argv[8]);
 	if (argc > 9) params.RANSAC = stoi(argv[9]);
 	if (argc > 10) params.matcher = argv[10];
@@ -122,7 +123,7 @@ int main(int argc, char** argv)
 	string groundPath(path);
 	groundPath.resize(pos + 1);
 
-	ofstream result(groundPath + "res" + to_string(method) + to_string(params.metric) + to_string((int)(params.templRatio * 100)) + to_string(int(params.maxShift * 100)) + to_string(params.layers) + params.detector + to_string(params.RANSAC) + params.matcher + ".txt");
+	ofstream result(groundPath + "res" + to_string(method) + to_string(params.metric) + to_string((int)(params.templRatio * 100)) + to_string(int(params.maxShift * 100)) + to_string(params.layers) + to_string(params.detector) + to_string(params.RANSAC) + params.matcher + ".txt");
 
 	if (evaluator.getStatus())
 	{

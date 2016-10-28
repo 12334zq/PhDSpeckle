@@ -21,7 +21,7 @@ protected:
 	Add segment to method name
 	@param segment			segment to add
 	*/
-	void addToName(const String& segment) { mMethodName = mMethodName + segment; }
+	void addToName(const String& segment) { mMethodName = mMethodName + "_" + segment; }
 
 public:
 	/**
@@ -32,7 +32,7 @@ public:
 		FULL_FFT, FULL_SPATIAL, LRP, SPIRAL, OPTICAL_FLOW, FEATURE_MATCHING
 	};
 
-	explicit Method(const String& name) : mMethodName(name), mDrawResult(false), mResultImg(Mat()) {}
+	explicit Method(const String& name) : mMethodName(name), mDrawResult(false), mResultImg{} {}
 
 	virtual ~Method() {}
 

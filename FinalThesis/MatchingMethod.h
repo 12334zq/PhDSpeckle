@@ -114,7 +114,7 @@ public:
 		initMatching(first);
 		mMetric = MetricsFactory::getMetric(metric);
 		mMetric->reloadCache(mTemplate);
-		addToName("_" + mMetric->getName());
+		addToName(mMetric->getName());
 	}
 
 	~MatchingMethod(){}

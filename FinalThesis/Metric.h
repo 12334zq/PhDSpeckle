@@ -15,7 +15,7 @@ public:
 	/**
 	@enum enum for easier metrics selection
 	*/
-	enum METRICS
+	enum
 	{
 		SSD, NSSD, XC, NXC, ZXC, ZNXC, SAD, MAD
 	};

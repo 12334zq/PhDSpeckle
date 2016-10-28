@@ -20,8 +20,8 @@ int genres(int argc, char** argv)
 	params.maxShift = 0.1;
 	params.layers = 3;
 	params.maxFeatures = 200;
-	params.detector = "FAST";
-	params.RANSAC = 1;
+	params.detector = MyFeature2D::FAST;
+	params.RANSAC = true;
 	params.matcher = "BruteForce";
 
 	String mainPath = "C:\\Users\\Krzysztof\\Downloads\\data";

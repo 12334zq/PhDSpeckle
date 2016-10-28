@@ -24,7 +24,7 @@ class FeatureMatching : public FeaturesMethod
 		Mat M(2, 3, CV_64F);
 
 		//compute descriptors for image
-		mDetector->detectAndCompute(img, mDetectorMask, mNewKeypoints, mNewDescriptors);
+		mDetector->detectAndCompute(img, mNewKeypoints, mNewDescriptors);
 
 		//convert to type valid for FLANN
 		if (mMatcherName == "FlannBased" && mNewDescriptors.type() != CV_32F) {
@@ -36,7 +36,7 @@ class FeatureMatching : public FeaturesMethod
 		mMatcher->match(mPrevDescriptors, mNewDescriptors, matches);
 
 		//stop if too low number of matches to achieve reasonable result
-		if (matches.size() < 9)
+		if (matches.size() < MIN_NUM_OF_FEATURES )
 		{
 			//copy keypoints and descriptors
 			mPrevKeypoints = mNewKeypoints;
@@ -61,7 +61,7 @@ class FeatureMatching : public FeaturesMethod
 			good_matches[i] = matches[index.at<int>(i, 0)];
 		}
 
-		////draw results if needed
+		////draw results as matches
 		//if (mDrawResult)
 		//{
 		//	drawMatches(mPrevFrame, mPrevKeypoints, img, mNewKeypoints,
@@ -77,7 +77,7 @@ class FeatureMatching : public FeaturesMethod
 			pB[i] = mNewKeypoints[good_matches[i].trainIdx].pt;
 		}
 
-		if (mEstimationType == 1)
+		if (mRANSAC)
 		{
 			bool result = RANSAC(pA, pB, 0.5);
 			if (!result) cout << "RANSAC failed!" << endl;
@@ -109,7 +109,7 @@ class FeatureMatching : public FeaturesMethod
 	}
 
 public:
-	FeatureMatching(const Mat& first, const String& detector, const String& matcher, int maxFeatures, int estimation) : FeaturesMethod("FeatureMatching", first, detector, maxFeatures, estimation)
+	FeatureMatching(const Mat& first, int detector, const String& matcher, int maxFeatures, int estimation) : FeaturesMethod("FeatureMatching", first, detector, maxFeatures, estimation)
 	{
 		CV_Assert(mDetector->descriptorSize() > 0);
 
@@ -123,7 +123,7 @@ public:
 			mMatcher = new BFMatcher(mDetector->defaultNorm());
 			mMatcherName = "BruteForce";
 		}
-		addToName("_" + mMatcherName);
+		addToName(mMatcherName);
 
 		mDetector->compute(first, mPrevKeypoints, mPrevDescriptors);
 		if (mMatcherName == "FlannBased" && mPrevDescriptors.type() != CV_32F) {

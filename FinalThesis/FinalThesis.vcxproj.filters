@@ -34,6 +34,9 @@
     <Filter Include="Metrics\DissimilarityMetrics">
       <UniqueIdentifier>{2f355022-8e18-4408-8f3b-6ddba8fec3e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FeaturesMethods\FeatureDetectors">
+      <UniqueIdentifier>{4ea8cf8a-8231-47f4-93f8-da51429e2991}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Method.h">
@@ -134,6 +137,12 @@
     </ClInclude>
     <ClInclude Include="MetricZXC.h">
       <Filter>Metrics\SimilarityMetrics</Filter>
+    </ClInclude>
+    <ClInclude Include="RegularGrid.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyFeature2D.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,63 +1,34 @@
 ﻿#pragma once
 #include "Method.h"
-#include <opencv2/xfeatures2d/nonfree.hpp>
-#include <opencv2/video/tracking.hpp>
-#include <opencv2/tracking/tracking.hpp>
+#include <opencv2/xfeatures2d.hpp>
+#include "MyFeature2D.h"
 
 using namespace std;
-
-/**
-Class derived from OpenCV Feature2D
-Instead of detecting features it only creates a constant grid of points
-*/
-class FeaturesGrid : public Feature2D
-{
-	int mCountX;
-
-public:
-	FeaturesGrid(int count) : Feature2D(), mCountX(count){}
-
-	void detect(InputArray image, vector<KeyPoint>& keypoints, InputArray mask) override
-	{
-		bool useMask = false;
-		Mat maskMat = mask.getMat();
-		if (!maskMat.empty()) useMask = true;
-
-		int countY = cvRound(mCountX * image.cols() / static_cast<double>(image.rows()));
-		keypoints = vector<KeyPoint>();
-		for (int i = 0, k = 0; i < countY; i++)
-			for (int j = 0; j < mCountX; j++, k++)
-			{
-				float x = (j + 0.5f)*image.cols() / mCountX;
-				float y = (i + 0.5f)*image.rows() / countY;
-
-				if (useMask)
-				{
-					Point xy(x, y);
-					if (maskMat.at<uchar>(xy) == 0)
-						continue;
-				}
-
-				keypoints.push_back(KeyPoint(x, y, 0));
-			}
-	}
-};
 
 /**
 	Base class for algorithms using features
 */
 class FeaturesMethod : public Method
 {
+private:
+	Mat createMaskCoveringBorder(const Mat& image, float border) const
+	{
+		if (border < FLT_EPSILON) return Mat();
+
+		Mat mask = Mat::zeros(image.size(), image.type());
+		Point topLeftCorner(Point(image.size()) * border);
+		Point bottomRightCorner(Point(image.size()) * (1.0f - border));
+		rectangle(mask, topLeftCorner, bottomRightCorner, Scalar(255), CV_FILLED);
+
+		return mask;
+	}
+
 protected:
+	const int MIN_NUM_OF_FEATURES = 9;
 	Mat mPrevFrame; /**< Previous frame */
-	Size mPrevSize; /**< Size of previous frame */
-	Ptr<Feature2D> mDetector; /**< Pointer to detector/descriptor object */
+	Ptr<MyFeature2D> mDetector; /**< Pointer to detector/descriptor object */
 	vector<KeyPoint> mPrevKeypoints; /**< Previously detected keypoints */
-	Mat mDetectorMask; /**< Mask for features detection */
-	int mEstimationType; /**< 0 - allPoints, 1 - RANSAC, 2 - original OpenCV function */
-	String mDetectorName;
-	int mMaxFeatures;
-	Point2f mTotalMotion;
+	bool mRANSAC;
 
 	/**
 	Find rigid transformation matrix for the next frame
@@ -123,7 +94,7 @@ protected:
 	@param good_ratio	minimum ratio of good points in set to accept result
 	@return				true - if success / false - if fail
 	*/
-	bool RANSAC(vector<Point2f>& pA, vector<Point2f>& pB, double good_ratio) const
+	static bool RANSAC(vector<Point2f>& pA, vector<Point2f>& pB, double good_ratio)
 	{
 		const int RANSAC_MAX_ITERS = 300;
 		const int RANSAC_SIZE0 = 3;
@@ -242,143 +213,17 @@ protected:
 	}
 
 public:
-	FeaturesMethod(const String& name, const Mat& first, const String& detector, int maxFeatures, int estimation) : Method(name), mEstimationType(estimation), mMaxFeatures(maxFeatures), mTotalMotion(0)
+
+	FeaturesMethod(const String& name, const Mat& first, int detector, int maxFeatures, bool RANSAC) : 
+		Method(name), mPrevFrame(first), mRANSAC(RANSAC)
 	{
-		addToName("_" + detector);
-		if (estimation == 1) addToName("_RANSAC");
+		Mat mask = createMaskCoveringBorder(first, 0.1f);
+		mDetector = makePtr<MyFeature2D>(detector, maxFeatures, first, mask);
 
-		first.copyTo(mPrevFrame);
-		mPrevSize = first.size();
+		mDetector->detect(first, mPrevKeypoints);
+		cout << "Features in the first frame: " << mPrevKeypoints.size() << endl;
 
-		/*
-			INIT FEATURE DETECTOR
-		*/
-		mDetectorName = detector;
-		//define mask to omit features near border
-		const int borderDivider = 10;
-		mDetectorMask = Mat::zeros(mPrevSize, mPrevFrame.type());
-		Point maskTL(mPrevSize / borderDivider);
-		Point maskBR(mPrevSize * (borderDivider - 1) / borderDivider);
-		Rect ROI(maskTL, maskBR);
-		rectangle(mDetectorMask, ROI, Scalar(255), CV_FILLED);
-
-		//create features detector object pointer
-		if (detector == "Grid")
-		{
-			double featuresRatio = 1.0 / sqrt(ROI.area() / static_cast<double>(mMaxFeatures));
-			int ROIcountX = ROI.width * featuresRatio + 1;
-			mDetector = makePtr<FeaturesGrid>(round((mPrevSize.width * ROIcountX) / ROI.width));
-		}
-		else if (detector == "Agast" || detector == "AGAST")
-		{
-			cout << "Adjusting settings to the achieve desired number of features...";
-			for (int i = 1; i < 255; i++)
-			{
-				mPrevKeypoints.clear();
-				mDetector = AgastFeatureDetector::create(i, false);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				if (mPrevKeypoints.size() <= mMaxFeatures) break;
-			}
-		}
-		else if (detector == "sAgast" || detector == "sAGAST")
-		{
-			cout << "Adjusting settings to the achieve desired number of features...";
-			for (int i = 1; i < 255; i++)
-			{
-				mPrevKeypoints.clear();
-				mDetector = AgastFeatureDetector::create(i, true);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				if (mPrevKeypoints.size() <= mMaxFeatures) break;
-			}
-		}
-		else if (detector == "BRISK")
-		{
-			cout << "Adjusting settings to the achieve desired number of features...";
-			for (int i = 36; i < 255; i+=1)
-			{
-				mPrevKeypoints.clear();
-				mDetector = BRISK::create(i, 0);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				//cout << i << "," << mPrevKeypoints.size() << endl;
-				if (mPrevKeypoints.size() <= mMaxFeatures) break;
-			}
-		}
-		else if (detector == "FAST")
-		{
-			cout << "Adjusting settings to achieve desired number of features...\n";
-			for (int i = 1; i < 255; i++)
-			{
-				mPrevKeypoints.clear();
-				mDetector = FastFeatureDetector::create(i, false);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				if (mPrevKeypoints.size() <= mMaxFeatures) break;
-			}
-		}
-		else if (detector == "sFAST")
-		{
-			cout << "Adjusting settings to achieve desired number of features...\n";
-			for (int i = 1; i < 255; i++)
-			{
-				mPrevKeypoints.clear();
-				mDetector = FastFeatureDetector::create(i, true);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				if (mPrevKeypoints.size() <= mMaxFeatures) break;
-			}
-		}
-		else if (detector == "GFTT")
-			mDetector = GFTTDetector::create(mMaxFeatures, 0.01, 1);
-		else if (detector == "Harris")
-			mDetector = GFTTDetector::create(mMaxFeatures, 0.01, 1, 3, true);
-		else if (detector == "ORB")
-			mDetector = ORB::create(mMaxFeatures, 1.2, 1, 0);
-		else if (detector == "SURF")
-		{
-			cout << "Adjusting settings to achieve desired number of features...\n";
-			int step = 10;
-			for (int i = 300; i < 50000; i+=step)
-			{
-				mPrevKeypoints.clear();
-				mDetector = xfeatures2d::SURF::create(i, 1, 3);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				//cout << i << "," << mPrevKeypoints.size() << endl;
-				if (mPrevKeypoints.size() < 180) step = 15;
-				if (mPrevKeypoints.size() < 130) step = 25;
-				if (mPrevKeypoints.size() <= mMaxFeatures) break;
-			}
-		}
-		else if (detector == "U-SURF")
-		{
-			cout << "Adjusting settings to achieve desired number of features...\n";
-			int step = 10;
-			for (int i = 300; i < 50000; i += step)
-			{
-				mPrevKeypoints.clear();
-				mDetector = xfeatures2d::SURF::create(i, 1, 3, false, true);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				//cout << i << "," << mPrevKeypoints.size() << endl;
-				if (mPrevKeypoints.size() < 180) step = 15;
-				if (mPrevKeypoints.size() < 130) step = 25;
-				if (mPrevKeypoints.size() <= mMaxFeatures) break;
-			}
-		}
-		else if (detector == "SIFT")
-		{
-			cout << "Adjusting settings to achieve desired number of features...\n";
-			for (int i = mMaxFeatures; i < mMaxFeatures * 10; i++)
-			{
-				mPrevKeypoints.clear();
-				mDetector = xfeatures2d::SIFT::create(i, 2, 0.01, 10, 1.2);
-				mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-				if (mPrevKeypoints.size() >= mMaxFeatures) break;
-			}
-		}
-		
-
-		//detect keypoints in first image
-		
-		mPrevKeypoints.clear();
-		mDetector->detect(first, mPrevKeypoints, mDetectorMask);
-		mMaxFeatures = mPrevKeypoints.size();
-		cout << "Number of features tracked: " << mPrevKeypoints.size() << endl;
+		//addToName(mDetector->getName());
+		if (RANSAC) addToName("RANSAC");
 	}
 };

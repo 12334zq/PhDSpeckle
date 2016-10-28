@@ -12,9 +12,9 @@ struct MethodParams
 	double templRatio = 0.7; /**< Template to image ratio */
 	double maxShift = 0.1; /**< Maximum expected image shift in the next frame */
 	int layers = 3; /**< Number of layers for low resolution pruning and optical flow */
-	String detector = "ORB"; /**< Name of the feature detector/descriptor */
+	int detector = MyFeature2D::ORB; /**< Name of the features detector */
 	int maxFeatures = 200;
-	int RANSAC = 1; /**< 0 - all points, 1 - RANSAC */
+	bool RANSAC = true;
 	String matcher = "FlannBased"; /**< Name of the descriptor detector */
 };
 
@@ -28,7 +28,7 @@ public:
 	@param params			method parameters (see MethodParams struct)
 	@return					smart OpenCV pointer to initialized method object
 	*/
-	static Ptr<Method> getMethod(int method, const Mat& first, MethodParams params){
+	static Ptr<Method> getMethod(int method, const Mat& first, const MethodParams& params){
 
 		switch (method)
 		{

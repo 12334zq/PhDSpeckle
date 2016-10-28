@@ -22,18 +22,24 @@ class LaserSpeckleVelocimeter
 public:
 	/**
 	Explicit constructor
-	@param path			path to videofile / the first image in the sequence / folder path with wildcard '*' / default camera if "0" 
+	@param source		path to videofile / the first image in the sequence / folder source with wildcard '*' / camera number
 	@param method		method number according to Method::METHODS enum
 	@param params		method parameters in MethodParams structure
 	@param px2mm		calibration factor (unused yet)
 	@param draw			results drawing flag
 	*/
-	explicit LaserSpeckleVelocimeter(const String& path, int method, MethodParams params, double px2mm = 1.0, bool draw = false) : PX2MM(px2mm)
+	explicit LaserSpeckleVelocimeter(const String& source, int method, const MethodParams& params, double px2mm = 1.0, bool draw = false) : PX2MM(px2mm)
 	{
-		if (path == "0") 
-			mFramesGrabber = FramesGrabberFactory::getFramesGrabber(0);
-		else
-			mFramesGrabber = FramesGrabberFactory::getFramesGrabber(path);
+		//check whether source is a camera id number
+		try
+		{
+			int cameraId = stoi(source);
+			mFramesGrabber = FramesGrabberFactory::getFramesGrabber(cameraId);
+		}
+		catch (...)
+		{
+			mFramesGrabber = FramesGrabberFactory::getFramesGrabber(source);
+		}
 
 		Mat first;
 		CV_Assert(mFramesGrabber->acquire(first));
@@ -55,7 +61,7 @@ public:
 	Get method name
 	@return				mehod name
 	*/
-	String getMehodName() const { return mMethod->getName(); }
+	String getMethodName() const { return mMethod->getName(); }
 
 	/**
 	Get measured velocity

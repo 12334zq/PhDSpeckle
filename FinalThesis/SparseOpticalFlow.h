@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <opencv2/video/tracking.hpp>
 #include "FeaturesMethod.h"
 #include <fstream>
 
@@ -12,7 +13,7 @@ class SparseOpticalFlow : public FeaturesMethod
 	double sumDetectTime = 0;
 	int frames = 0;
 	int mSumFeatures = 0;
-	int mIter = 0;
+	int mItersWithoutUpdate = 0;
 
 	/**
 	Calculate and update features vector
@@ -20,31 +21,25 @@ class SparseOpticalFlow : public FeaturesMethod
 	*/
 	void updateFeatures(const Mat& img)
 	{
-		//detect keypoints in image
-		std::vector<KeyPoint> keyPoints;
-
-		mDetector->detect(img, keyPoints, mDetectorMask);
+		vector<KeyPoint> keyPoints;
+		mDetector->detect(img, keyPoints);
 		
 		int numOfKeypoints = keyPoints.size();
-
-		//stop if too low number of matches to achieve reasonable result
-		if (numOfKeypoints < 9)
+		if (numOfKeypoints < MIN_NUM_OF_FEATURES)
 		{
-			mIter = 1;
+			mItersWithoutUpdate = 1;
 			return;
 		}
 
-		mMaxFeatures = numOfKeypoints;
-
-		//convert keyPoints to points
+		//extract points from keyPoints, faster method than KeyPoint::convert
 		mPrevPoints2f.resize(numOfKeypoints);
-		for (size_t i = 0; i < numOfKeypoints; i++)
+		for (int i = 0; i < numOfKeypoints; ++i)
 		{
 			mPrevPoints2f[i] = keyPoints[i].pt;
 		}
 
 		//add subpixel accuracy if needed
-		if (mDetectorName != "SURF" && mDetectorName != "U-SURF")
+		if (mDetector->getName() != "SURF" && mDetector->getName() != "U-SURF")
 		{
 			cornerSubPix(img, mPrevPoints2f, Size(3, 3), Size(-1, -1),
 				TermCriteria(TermCriteria::MAX_ITER | TermCriteria::EPS, 30, 0.01));
@@ -84,10 +79,9 @@ class SparseOpticalFlow : public FeaturesMethod
 		pB.resize(count);
 		pA.resize(count);
 
-		if (mEstimationType == 1)
+		if (mRANSAC)
 		{
-			bool result = RANSAC(pA, pB, 0.5);
-			if (!result) cout << "RANSAC failed!" << endl;
+			if (!RANSAC(pA, pB, 0.5)) cout << "RANSAC failed!" << endl;
 		}
 
 		if (mDrawResult)
@@ -115,7 +109,8 @@ class SparseOpticalFlow : public FeaturesMethod
 
 
 public:
-	SparseOpticalFlow(const Mat& first, const String& detector, int maxFeatures, int estimation = 0, int layers = 4) : FeaturesMethod("OpticalFlow", first, detector, maxFeatures, estimation), mLayers(layers)
+	SparseOpticalFlow(const Mat& first, int detector, int maxFeatures, bool RANSAC = false, int layers = 4)
+		: FeaturesMethod("OpticalFlow", first, detector, maxFeatures, RANSAC), mLayers(layers)
 	{
 		//only 8-bit 1-channel supported
 		if (first.type() != CV_8UC1)
@@ -123,12 +118,6 @@ public:
 
 		KeyPoint::convert(mPrevKeypoints, mPrevPoints2f);
 		updateFeatures(first);
-
-		if (estimation == 2) addToName("_OpenCV");
-	}
-
-	~SparseOpticalFlow()
-	{
 	}
 
 	/**
@@ -150,13 +139,13 @@ public:
 		double sinR = transform.at<double>(1, 0);
 		double angle = asin(sinR) * 180 / CV_PI;
 
-		if (mIter >= 1 || mPrevPoints2f.size() < 10)
+		if (mItersWithoutUpdate >= 1 || mPrevPoints2f.size() < 10)
 		{
 			updateFeatures(mPrevFrame);
-			mIter = 0;
+			mItersWithoutUpdate = 0;
 		}
 		else
-			mIter++;
+			mItersWithoutUpdate++;
 
 		return Point3f(X, Y, angle);
 
