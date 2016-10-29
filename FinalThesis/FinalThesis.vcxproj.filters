@@ -144,6 +144,42 @@
     <ClInclude Include="MyFeature2D.h">
       <Filter>FeaturesMethods\FeatureDetectors</Filter>
     </ClInclude>
+    <ClInclude Include="MyFeature2DFactory.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyFAST.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MySFAST.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyAGAST.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MySAGAST.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyBRISK.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyGFTT.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyHarris.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyORB.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MySURF.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MyUSURF.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="MySIFT.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

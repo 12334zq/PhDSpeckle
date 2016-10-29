@@ -12,7 +12,7 @@ struct MethodParams
 	double templRatio = 0.7; /**< Template to image ratio */
 	double maxShift = 0.1; /**< Maximum expected image shift in the next frame */
 	int layers = 3; /**< Number of layers for low resolution pruning and optical flow */
-	int detector = MyFeature2D::ORB; /**< Name of the features detector */
+	int detector = MyFeature2D::FAST; /**< Name of the features detector */
 	int maxFeatures = 200;
 	bool RANSAC = true;
 	String matcher = "FlannBased"; /**< Name of the descriptor detector */

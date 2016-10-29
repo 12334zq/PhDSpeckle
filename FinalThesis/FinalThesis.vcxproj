@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClInclude Include="FeatureMatching.h" />
     <ClInclude Include="Evaluator.h" />
+    <ClInclude Include="MyAGAST.h" />
+    <ClInclude Include="MyBRISK.h" />
+    <ClInclude Include="MyFAST.h" />
     <ClInclude Include="MyFeature2D.h" />
     <ClInclude Include="FeaturesMethod.h" />
     <ClInclude Include="FramesGrabber.h" />
@@ -29,6 +32,15 @@
     <ClInclude Include="FramesGrabberCV.h" />
     <ClInclude Include="Gaussian3.h" />
     <ClInclude Include="Gaussian5.h" />
+    <ClInclude Include="MyFeature2DFactory.h" />
+    <ClInclude Include="MyGFTT.h" />
+    <ClInclude Include="MyHarris.h" />
+    <ClInclude Include="MyORB.h" />
+    <ClInclude Include="MySAGAST.h" />
+    <ClInclude Include="MySFAST.h" />
+    <ClInclude Include="MySIFT.h" />
+    <ClInclude Include="MySURF.h" />
+    <ClInclude Include="MyUSURF.h" />
     <ClInclude Include="RegularGrid.h" />
     <ClInclude Include="ModifiedSpiralSearch.h" />
     <ClInclude Include="SimilarityMetric.h" />

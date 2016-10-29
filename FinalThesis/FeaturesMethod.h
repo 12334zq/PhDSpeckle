@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Method.h"
 #include <opencv2/xfeatures2d.hpp>
-#include "MyFeature2D.h"
+#include "MyFeature2DFactory.h"
 
 using namespace std;
 
@@ -218,12 +218,9 @@ public:
 		Method(name), mPrevFrame(first), mRANSAC(RANSAC)
 	{
 		Mat mask = createMaskCoveringBorder(first, 0.1f);
-		mDetector = makePtr<MyFeature2D>(detector, maxFeatures, first, mask);
+		mDetector = MyFeature2DFactory::create(detector, maxFeatures, first, mask);
 
-		mDetector->detect(first, mPrevKeypoints);
-		cout << "Features in the first frame: " << mPrevKeypoints.size() << endl;
-
-		//addToName(mDetector->getName());
+		addToName(mDetector->getName());
 		if (RANSAC) addToName("RANSAC");
 	}
 };

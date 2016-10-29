@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 	cout << "Speckle velocimetry - Krzysztof Kotowski\n";
 
 	int method = Method::OPTICAL_FLOW;
-	bool draw = false;
+	bool draw = true;
 	bool evaluate = true;
 	double px2mm = 1.0;
 

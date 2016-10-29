@@ -111,7 +111,7 @@ class FeatureMatching : public FeaturesMethod
 public:
 	FeatureMatching(const Mat& first, int detector, const String& matcher, int maxFeatures, int estimation) : FeaturesMethod("FeatureMatching", first, detector, maxFeatures, estimation)
 	{
-		CV_Assert(mDetector->descriptorSize() > 0);
+		CV_Assert(mDetector->hasDescriptor());
 
 		if (matcher == "FlannBased")
 		{
