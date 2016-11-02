@@ -3,7 +3,7 @@
 #include "FullSearchSpatial.h"
 #include "LowResolutionPruning.h"
 #include "ModifiedSpiralSearch.h"
-#include "SparseOpticalFlow.h"
+#include "SparseLKOpticalFlow.h"
 #include "FeatureMatching.h"
 
 struct MethodParams
@@ -36,7 +36,7 @@ public:
 		case Method::FULL_SPATIAL: return new FullSearchSpatial(first, params.metric, params.templRatio, params.maxShift);
 		case Method::LRP : return new LowResolutionPruning(first, params.metric, params.templRatio, params.maxShift, params.layers, 2.0);
 		case Method::SPIRAL : return new ModifiedSpiralSearch(first, params.metric, params.templRatio, params.maxShift);
-		case Method::OPTICAL_FLOW: return new SparseOpticalFlow(first, params.detector, params.maxFeatures, params.RANSAC, params.layers);
+		case Method::OPTICAL_FLOW: return new SparseLKOpticalFlow(first, params.detector, params.maxFeatures, params.RANSAC, params.layers);
 		case Method::FEATURE_MATCHING : return new FeatureMatching(first, params.detector, params.matcher, params.maxFeatures, params.RANSAC);
 		default: return new FullSearchSpatial(first, params.metric, params.templRatio, params.maxShift);
 		}

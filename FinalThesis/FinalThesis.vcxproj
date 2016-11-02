@@ -23,6 +23,7 @@
     <ClInclude Include="Evaluator.h" />
     <ClInclude Include="MyAGAST.h" />
     <ClInclude Include="MyBRISK.h" />
+    <ClInclude Include="MyCudaFast.h" />
     <ClInclude Include="MyFAST.h" />
     <ClInclude Include="MyFeature2D.h" />
     <ClInclude Include="FeaturesMethod.h" />
@@ -62,7 +63,7 @@
     <ClInclude Include="MetricsFactory.h" />
     <ClInclude Include="MetricSSD.h" />
     <ClInclude Include="MetricXC.h" />
-    <ClInclude Include="SparseOpticalFlow.h" />
+    <ClInclude Include="SparseLKOpticalFlow.h" />
     <ClInclude Include="Metric.h" />
     <ClInclude Include="SubPixelEstimator.h" />
     <ClInclude Include="SubPixelEstimatorsFactory.h" />
@@ -128,7 +129,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(OPENCV_DIR)\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(OPENCV_DIR)\x64\vc14\lib;$(LibraryPath)</LibraryPath>
-    <ReferencePath>$(Path);$(VC_ReferencesPath_x64);</ReferencePath>
+    <ReferencePath>$(OPENCV_DIR)\x64\vc14\bin;$(VC_ReferencesPath_x64);</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

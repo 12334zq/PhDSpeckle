@@ -99,7 +99,7 @@ class FeatureMatching : public FeaturesMethod
 			}
 		}
 
-		getRTMatrix(pA, pB, pA.size(), M);
+		getRTMatrix(pA, pB, M);
 
 		//copy keypoints and descriptors
 		mPrevKeypoints = mNewKeypoints;

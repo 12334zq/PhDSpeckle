@@ -37,7 +37,8 @@ public:
 		default: {result = makePtr<MyFAST>(); }
 		}
 
-		result->adjustTo(maxFeatures, image, mask);
+		result->setMask(mask);
+		result->adjustTo(maxFeatures, image);
 
 		return result;
 	}

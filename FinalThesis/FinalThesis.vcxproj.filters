@@ -93,9 +93,6 @@
     <ClInclude Include="FeaturesMethod.h">
       <Filter>FeaturesMethods</Filter>
     </ClInclude>
-    <ClInclude Include="SparseOpticalFlow.h">
-      <Filter>FeaturesMethods</Filter>
-    </ClInclude>
     <ClInclude Include="FeatureMatching.h">
       <Filter>FeaturesMethods</Filter>
     </ClInclude>
@@ -178,6 +175,12 @@
       <Filter>FeaturesMethods\FeatureDetectors</Filter>
     </ClInclude>
     <ClInclude Include="MySIFT.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseLKOpticalFlow.h">
+      <Filter>FeaturesMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="MyCudaFast.h">
       <Filter>FeaturesMethods\FeatureDetectors</Filter>
     </ClInclude>
   </ItemGroup>

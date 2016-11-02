@@ -1,17 +1,14 @@
 ﻿#pragma once
 #include <opencv2/video/tracking.hpp>
 #include "FeaturesMethod.h"
-#include <fstream>
 
 /**
 Class for sparse optical flow
 */
-class SparseOpticalFlow : public FeaturesMethod
+class SparseLKOpticalFlow : public FeaturesMethod
 {
 	vector<Point2f> mPrevPoints2f; /**< Previously detected points */
 	int mLayers; /**< Number of layers in optical flow algorithm */
-	double sumDetectTime = 0;
-	int frames = 0;
 	int mSumFeatures = 0;
 	int mItersWithoutUpdate = 0;
 
@@ -100,7 +97,7 @@ class SparseOpticalFlow : public FeaturesMethod
 			}
 		}
 
-		getRTMatrix(pA, pB, pA.size(), M);
+		getRTMatrix(pA, pB, M);
 
 		mPrevPoints2f = pB;
 
@@ -109,7 +106,7 @@ class SparseOpticalFlow : public FeaturesMethod
 
 
 public:
-	SparseOpticalFlow(const Mat& first, int detector, int maxFeatures, bool RANSAC = false, int layers = 4)
+	SparseLKOpticalFlow(const Mat& first, int detector, int maxFeatures, bool RANSAC = false, int layers = 4)
 		: FeaturesMethod("OpticalFlow", first, detector, maxFeatures, RANSAC), mLayers(layers)
 	{
 		//only 8-bit 1-channel supported
@@ -132,7 +129,7 @@ public:
 		mSumFeatures += mPrevPoints2f.size();
 
 		img.copyTo(mPrevFrame);
-		//don't detect new keypoints if motion is small and features are complete
+	
 		double X = transform.at<double>(0, 2);
 		double Y = transform.at<double>(1, 2);
 		double cosR = transform.at<double>(0, 0);
@@ -147,11 +144,11 @@ public:
 		else
 			mItersWithoutUpdate++;
 
-		return Point3f(X, Y, angle);
+		//return Point3f(X, Y, angle);
 
-		/*double cx = img.cols * 0.5;
+		double cx = img.cols * 0.5;
 		double cy = img.rows * 0.5;
-		return Point3f(X - cx * (1.0 - cosR) + cy * sinR, Y - cx * sinR - cy * (1.0 - cosR), angle);*/
+		return Point3f(X + cx * (1.0 - cosR) - cy * sinR, Y + cx * sinR + cy * (1.0 - cosR), angle);
 	}
 
 	int getFeatures() override

@@ -1,34 +1,25 @@
 ﻿#pragma once
 #include "Method.h"
-#include <opencv2/xfeatures2d.hpp>
 #include "MyFeature2DFactory.h"
 
 using namespace std;
 
 /**
-	Base class for algorithms using features
+	Base class for algorithms using feature tracking approach
 */
 class FeaturesMethod : public Method
 {
-private:
-	Mat createMaskCoveringBorder(const Mat& image, float border) const
-	{
-		if (border < FLT_EPSILON) return Mat();
-
-		Mat mask = Mat::zeros(image.size(), image.type());
-		Point topLeftCorner(Point(image.size()) * border);
-		Point bottomRightCorner(Point(image.size()) * (1.0f - border));
-		rectangle(mask, topLeftCorner, bottomRightCorner, Scalar(255), CV_FILLED);
-
-		return mask;
-	}
-
 protected:
 	const int MIN_NUM_OF_FEATURES = 9;
 	Mat mPrevFrame; /**< Previous frame */
 	Ptr<MyFeature2D> mDetector; /**< Pointer to detector/descriptor object */
 	vector<KeyPoint> mPrevKeypoints; /**< Previously detected keypoints */
 	bool mRANSAC;
+
+	struct
+	{
+		
+	};
 
 	/**
 	Find rigid transformation matrix for the next frame
@@ -39,52 +30,47 @@ protected:
 
 	/**
 	Calculate matrix of rigid transformation (translation, rotation and scale)
-	@param a			points from descriptor
-	@param b			resulting points from tracker
-	@param count		number of points in a and b
-	@param M			output container for transformation matrix
+	@param before			points from descriptor
+	@param after			resulting points from tracker
+	@param RTMatrix			output container for transformation matrix
 	*/
-	static void getRTMatrix(const vector<Point2f>& a, const vector<Point2f>& b, int count, Mat& M)
+	static void getRTMatrix(const vector<Point2f>& before, const vector<Point2f>& after, Mat& RTMatrix)
 	{
-		CV_Assert(M.isContinuous());
+		CV_Assert(RTMatrix.isContinuous());
+		auto N = before.size();
+		CV_Assert(N > 1 && N == after.size());
 
-		double sa[4][4] = { { 0. } }, sb[4] = { 0. }, m[4];
-		Mat A(4, 4, CV_64F, sa), B(4, 1, CV_64F, sb);
-		Mat MM(4, 1, CV_64F, m);
+		double pA[4][4] = { { 0. } }, pB[4] = { 0. }, pMM[4] = { 0. };
+		Mat A(4, 4, CV_64F, pA), B(4, 1, CV_64F, pB);
+		Mat MM(4, 1, CV_64F, pMM);
 
-		for (int i = 0; i < count; i++)
+		//least squares 
+		for (auto i = 0; i < N; ++i)
 		{
-			sa[0][0] += a[i].x*a[i].x + a[i].y*a[i].y;
-			sa[0][2] += a[i].x;
-			sa[0][3] += a[i].y;
+			pA[0][0] += before[i].ddot(before[i]);
+			pA[0][2] += before[i].x;
+			pA[0][3] += before[i].y;
 
-			sa[2][1] += -a[i].y;
-			sa[2][2] += 1;
-
-			sa[3][0] += a[i].y;
-			sa[3][1] += a[i].x;
-			sa[3][3] += 1;
-
-			sb[0] += a[i].x*b[i].x + a[i].y*b[i].y;
-			sb[1] += a[i].x*b[i].y - a[i].y*b[i].x;
-			sb[2] += b[i].x;
-			sb[3] += b[i].y;
+			pB[0] += before[i].ddot(after[i]);
+			pB[1] += before[i].cross(after[i]);
+			pB[2] += after[i].x;
+			pB[3] += after[i].y;
 		}
 
-		sa[1][1] = sa[0][0];
-		sa[2][1] = sa[1][2] = -sa[0][3];
-		sa[3][1] = sa[1][3] = sa[2][0] = sa[0][2];
-		sa[2][2] = sa[3][3] = count;
-		sa[3][0] = sa[0][3];
+		pA[1][1] = pA[0][0];
+		pA[2][1] = pA[1][2] = -pA[0][3];
+		pA[3][1] = pA[1][3] = pA[2][0] = pA[0][2];
+		pA[2][2] = pA[3][3] = N;
+		pA[3][0] = pA[0][3];
 
 		solve(A, B, MM, DECOMP_EIG);
 
-		double* om = M.ptr<double>();
-		om[0] = om[4] = m[0];
-		om[1] = -m[1];
-		om[3] = m[1];
-		om[2] = m[2];
-		om[5] = m[3];
+		double* om = RTMatrix.ptr<double>();
+		om[0] = om[4] = pMM[0];
+		om[1] = -pMM[1];
+		om[3] = pMM[1];
+		om[2] = pMM[2];
+		om[5] = pMM[3];
 	}
 
 	/**
@@ -177,7 +163,7 @@ protected:
 				continue;
 
 			// estimate the rigid transformation using drawn points
-			getRTMatrix(a, b, RANSAC_SIZE0, M);
+			getRTMatrix(a, b, M);
 
 			//calculate how many points accurately follow transformation 
 			const double* m = M.ptr<double>();
@@ -214,10 +200,9 @@ protected:
 
 public:
 
-	FeaturesMethod(const String& name, const Mat& first, int detector, int maxFeatures, bool RANSAC) : 
-		Method(name), mPrevFrame(first), mRANSAC(RANSAC)
+	FeaturesMethod(const String& name, const Mat& first, int detector, int maxFeatures, bool RANSAC) : Method(name), mPrevFrame(first), mRANSAC(RANSAC)
 	{
-		Mat mask = createMaskCoveringBorder(first, 0.1f);
+		Mat mask = MyFeature2D::createMask(first, 0.1f);
 		mDetector = MyFeature2DFactory::create(detector, maxFeatures, first, mask);
 
 		addToName(mDetector->getName());

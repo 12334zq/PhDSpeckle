@@ -5,12 +5,14 @@ LSVelocimeter project
 #include "LaserSpeckleVelocimeter.h"
 #include "Evaluator.h"
 
+using namespace std;
+
 int main(int argc, char** argv)
 {
 	cout << "Speckle velocimetry - Krzysztof Kotowski\n";
 
 	int method = Method::OPTICAL_FLOW;
-	bool draw = true;
+	bool draw = false;
 	bool evaluate = true;
 	double px2mm = 1.0;
 
@@ -24,10 +26,19 @@ int main(int argc, char** argv)
 	params.RANSAC = true;
 	params.matcher = "BruteForce";
 
-	String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\gen10_2\\*.png";
-	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot4_0\\*.png";
+	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\gen10_2\\*.png";
+	String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot1_0\\*.png";
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot30_0\\*.png";
 	//String path = "0";
+
+	try
+	{
+		stoi(path);
+		evaluate = false;
+	}catch(...)
+	{
+		
+	}
 
 	/**
 	* CHECK ARGUMENTS
@@ -116,17 +127,17 @@ int main(int argc, char** argv)
 	if (sumVelocity.y > 0) cout << "  |  " << sumVelocity.y << " deg/s";
 	cout << endl;
 
-	//get directory name from path
-	size_t pos = path.find_last_of('\\');
-	if (pos == string::npos) pos = path.find_last_of('/');
-	if (pos == string::npos) CV_Error(CV_StsBadArg, "Directory not found\n");
-	string groundPath(path);
-	groundPath.resize(pos + 1);
-
-	ofstream result(groundPath + "res" + to_string(method) + to_string(params.metric) + to_string((int)(params.templRatio * 100)) + to_string(int(params.maxShift * 100)) + to_string(params.layers) + to_string(params.detector) + to_string(params.RANSAC) + params.matcher + ".txt");
-
 	if (evaluator.getStatus())
 	{
+		//get directory name from path
+		size_t pos = path.find_last_of('\\');
+		if (pos == string::npos) pos = path.find_last_of('/');
+		if (pos == string::npos) CV_Error(CV_StsBadArg, "Directory not found\n");
+		string groundPath(path);
+		groundPath.resize(pos + 1);
+
+		ofstream result(groundPath + "res" + to_string(method) + to_string(params.metric) + to_string((int)(params.templRatio * 100)) + to_string(int(params.maxShift * 100)) + to_string(params.layers) + to_string(params.detector) + to_string(params.RANSAC) + params.matcher + ".txt");
+
 		auto r = evaluator.getAvgError();
 		cout << "Avg. error: " << evaluator.getAvgError() << endl;
 		cout << "Avg. error in pixels: " << sqrt(r.x*r.x + r.y*r.y) << endl;
@@ -135,9 +146,10 @@ int main(int argc, char** argv)
 		result << "Avg. time: " << 1000 * sumTime << " ms\n";
 		//namedWindow("Error", WINDOW_NORMAL);
 		//imshow("Error", evaluator.getPathImg());
+
+		result.close();
 	}
 	cout << "Avg. time: " << 1000 * sumTime << " ms\n";
-	result.close();
 
 	waitKey();
 
