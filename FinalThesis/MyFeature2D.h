@@ -11,7 +11,7 @@ protected:
 public:
 	enum 
 	{
-		Grid, AGAST, sAGAST, BRISK, FAST, sFAST, GFTT, Harris, ORB, SURF, uSURF, SIFT
+		Grid, AGAST, sAGAST, BRISK, FAST, sFAST, GFTT, Harris, ORB, SURF, uSURF, SIFT, Star
 	};
 
 	MyFeature2D() : mMask(){}

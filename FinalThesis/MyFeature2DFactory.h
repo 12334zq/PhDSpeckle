@@ -11,6 +11,7 @@
 #include "MySURF.h"
 #include "MyUSURF.h"
 #include "MySIFT.h"
+#include "MyStarDetector.h"
 
 class MyFeature2DFactory
 {
@@ -34,6 +35,7 @@ public:
 		case MyFeature2D::SURF: { result = makePtr<MySURF>(); break; }
 		case MyFeature2D::uSURF: { result = makePtr<MyUSURF>(); break; }
 		case MyFeature2D::SIFT: { result = makePtr<MySIFT>(); break; }
+		case MyFeature2D::Star: { result = makePtr<MyStarDetector>(); break; }
 		default: {result = makePtr<MyFAST>(); }
 		}
 

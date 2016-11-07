@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 	cout << "Speckle velocimetry - Krzysztof Kotowski\n";
 
 	int method = Method::OPTICAL_FLOW;
-	bool draw = false;
+	bool draw = true;
 	bool evaluate = true;
 	double px2mm = 1.0;
 
@@ -21,15 +21,17 @@ int main(int argc, char** argv)
 	params.templRatio = 0.8;
 	params.maxShift = 0.1;
 	params.layers = 3;
-	params.detector = MyFeature2D::FAST;
+	params.detector = MyFeature2D::ORB;
 	params.maxFeatures = 200;
 	params.RANSAC = true;
 	params.matcher = "BruteForce";
 
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\gen10_2\\*.png";
-	String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot1_0\\*.png";
+	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot1_0\\*.png";
+	String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rotations\\*.png";
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot30_0\\*.png";
 	//String path = "0";
+	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\out.mp4";
 
 	try
 	{

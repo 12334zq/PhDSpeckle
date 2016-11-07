@@ -18,10 +18,9 @@ class SparseLKOpticalFlow : public FeaturesMethod
 	*/
 	void updateFeatures(const Mat& img)
 	{
-		vector<KeyPoint> keyPoints;
-		mDetector->detect(img, keyPoints);
+		mDetector->detect(img, mPrevKeypoints);
 		
-		int numOfKeypoints = keyPoints.size();
+		int numOfKeypoints = mPrevKeypoints.size();
 		if (numOfKeypoints < MIN_NUM_OF_FEATURES)
 		{
 			mItersWithoutUpdate = 1;
@@ -32,7 +31,7 @@ class SparseLKOpticalFlow : public FeaturesMethod
 		mPrevPoints2f.resize(numOfKeypoints);
 		for (int i = 0; i < numOfKeypoints; ++i)
 		{
-			mPrevPoints2f[i] = keyPoints[i].pt;
+			mPrevPoints2f[i] = mPrevKeypoints[i].pt;
 		}
 
 		//add subpixel accuracy if needed
@@ -48,11 +47,8 @@ class SparseLKOpticalFlow : public FeaturesMethod
 	@param frame		next frame
 	@return				transformation matrix
 	*/
-	Mat getTransform(const Mat& img) override
+	Transform processNextFrame(const Mat& img) override
 	{
-		Mat M(2, 3, CV_64F);
-		int i, k;
-
 		vector<uchar> status;
 		vector<Point2f> pA(mPrevPoints2f), pB;
 
@@ -60,21 +56,10 @@ class SparseLKOpticalFlow : public FeaturesMethod
 		calcOpticalFlowPyrLK(mPrevFrame, img, pA, pB, status, noArray(), Size(27,27), 4,
 			TermCriteria(TermCriteria::MAX_ITER + TermCriteria::EPS, 30, 0.01), OPTFLOW_LK_GET_MIN_EIGENVALS, 0.001);
 
-		// leave only points with optical flow status = true
-		int count = pA.size();
-		for (i = 0, k = 0; i < count; i++)
-			if (status[i])
-			{
-				if (i > k)
-				{
-					pA[k] = pA[i];
-					pB[k] = pB[i];
-				}
-				k++;
-			}
-		count = k;
-		pB.resize(count);
-		pA.resize(count);
+		int i = 0;
+		pA.erase(remove_if(pA.begin(), pA.end(), [&](...) {return !status[i++]; }), pA.end());
+		i = 0;
+		pB.erase(remove_if(pB.begin(), pB.end(), [&](...) {return !status[i++]; }), pB.end());
 
 		if (mRANSAC)
 		{
@@ -86,22 +71,19 @@ class SparseLKOpticalFlow : public FeaturesMethod
 			img.copyTo(mResultImg);
 			cvtColor(mResultImg, mResultImg, CV_GRAY2BGR);
 
-			for (i = 0; i < pA.size(); i++)
+			auto COLOR_RED = Scalar(0, 0, 255);
+			auto COLOR_GREEN = Scalar(0, 255, 0);
+			for (i = 0; i < pB.size(); ++i)
 			{
-				circle(mResultImg, pA[i], mResultImg.cols / 80, Scalar(0, 0, 255), 2);
-			}
-			for (i = 0; i < pB.size(); i++)
-			{
-				arrowedLine(mResultImg, pA[i], pB[i], Scalar(0, 255, 0));
-				circle(mResultImg, pB[i], mResultImg.cols / 80, Scalar(0, 255, 0), 2);
+				circle(mResultImg, pA[i], mResultImg.cols / 80, COLOR_RED, 2);
+				arrowedLine(mResultImg, pA[i], pB[i], COLOR_GREEN);
+				circle(mResultImg, pB[i], mResultImg.cols / 80, COLOR_GREEN, 2);
 			}
 		}
 
-		getRTMatrix(pA, pB, M);
-
 		mPrevPoints2f = pB;
 
-		return M;
+		return getTransform(pA, pB);
 	}
 
 
@@ -124,17 +106,11 @@ public:
 	*/
 	Point3f getDisplacement(const Mat& img) override
 	{
-		Mat transform = getTransform(img);
+		Transform transform = processNextFrame(img);
 
 		mSumFeatures += mPrevPoints2f.size();
 
 		img.copyTo(mPrevFrame);
-	
-		double X = transform.at<double>(0, 2);
-		double Y = transform.at<double>(1, 2);
-		double cosR = transform.at<double>(0, 0);
-		double sinR = transform.at<double>(1, 0);
-		double angle = asin(sinR) * 180 / CV_PI;
 
 		if (mItersWithoutUpdate >= 1 || mPrevPoints2f.size() < 10)
 		{
@@ -144,11 +120,7 @@ public:
 		else
 			mItersWithoutUpdate++;
 
-		//return Point3f(X, Y, angle);
-
-		double cx = img.cols * 0.5;
-		double cy = img.rows * 0.5;
-		return Point3f(X + cx * (1.0 - cosR) - cy * sinR, Y + cx * sinR + cy * (1.0 - cosR), angle);
+		return Point3f(transform.tx, transform.ty, transform.angle);
 	}
 
 	int getFeatures() override

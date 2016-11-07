@@ -20,8 +20,8 @@ public:
 
 	/**
 	Check if the first value means better similarity than the second value
-	@param val			the first value
-	@param thresh		the second value
+	@param value			the first value
+	@param threshold		the second value
 	@return				true - if is better / false - otherwise
 	*/
 	bool isBetter(double value, double threshold) const override

@@ -16,13 +16,11 @@ class FeatureMatching : public FeaturesMethod
 
 	/**
 	Find rigid transformation matrix for the next frame
-	@param frame		next frame
+	@param img		next frame
 	@return				transformation matrix
 	*/
-	Mat getTransform(const Mat& img) override
+	Transform processNextFrame(const Mat& img) override
 	{
-		Mat M(2, 3, CV_64F);
-
 		//compute descriptors for image
 		mDetector->detectAndCompute(img, mNewKeypoints, mNewDescriptors);
 
@@ -41,7 +39,7 @@ class FeatureMatching : public FeaturesMethod
 			//copy keypoints and descriptors
 			mPrevKeypoints = mNewKeypoints;
 			mNewDescriptors.copyTo(mPrevDescriptors);
-			return M;
+			return Transform();
 		}
 
 		//select the best matches only
@@ -99,13 +97,11 @@ class FeatureMatching : public FeaturesMethod
 			}
 		}
 
-		getRTMatrix(pA, pB, M);
-
 		//copy keypoints and descriptors
 		mPrevKeypoints = mNewKeypoints;
 		mNewDescriptors.copyTo(mPrevDescriptors);
 
-		return M;
+		return getTransform(pA, pB);
 	}
 
 public:
@@ -141,11 +137,11 @@ public:
 	Point3f getDisplacement(const Mat& img) override
 	{
 		mSumFeatures += mPrevKeypoints.size();
-		Mat transform = getTransform(img);
+		Transform transform = processNextFrame(img);
 
 		img.copyTo(mPrevFrame);
 
-		return Point3f(transform.at<double>(0, 2), transform.at<double>(1, 2), asin(transform.at<double>(1, 0)) * 180 / CV_PI);
+		return Point3f(transform.tx, transform.ty, transform.angle);
 	}
 
 	/**

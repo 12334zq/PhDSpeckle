@@ -9,40 +9,19 @@ using namespace std;
 */
 class FeaturesMethod : public Method
 {
-protected:
-	const int MIN_NUM_OF_FEATURES = 9;
-	Mat mPrevFrame; /**< Previous frame */
-	Ptr<MyFeature2D> mDetector; /**< Pointer to detector/descriptor object */
-	vector<KeyPoint> mPrevKeypoints; /**< Previously detected keypoints */
-	bool mRANSAC;
-
-	struct
-	{
-		
-	};
-
-	/**
-	Find rigid transformation matrix for the next frame
-	@param frame		next frame
-	@return				transformation matrix
-	*/
-	virtual Mat getTransform(const Mat& frame) = 0;
-
+private:
 	/**
 	Calculate matrix of rigid transformation (translation, rotation and scale)
 	@param before			points from descriptor
 	@param after			resulting points from tracker
-	@param RTMatrix			output container for transformation matrix
 	*/
-	static void getRTMatrix(const vector<Point2f>& before, const vector<Point2f>& after, Mat& RTMatrix)
+	static Mat getRTMatrix(const vector<Point2f>& before, const vector<Point2f>& after)
 	{
-		CV_Assert(RTMatrix.isContinuous());
 		auto N = before.size();
 		CV_Assert(N > 1 && N == after.size());
 
-		double pA[4][4] = { { 0. } }, pB[4] = { 0. }, pMM[4] = { 0. };
+		double pA[4][4] = { { 0. } }, pB[4] = { 0. };
 		Mat A(4, 4, CV_64F, pA), B(4, 1, CV_64F, pB);
-		Mat MM(4, 1, CV_64F, pMM);
 
 		//least squares 
 		for (auto i = 0; i < N; ++i)
@@ -57,20 +36,80 @@ protected:
 			pB[3] += after[i].y;
 		}
 
+		//fill matrix A to be symmetric
 		pA[1][1] = pA[0][0];
 		pA[2][1] = pA[1][2] = -pA[0][3];
 		pA[3][1] = pA[1][3] = pA[2][0] = pA[0][2];
 		pA[2][2] = pA[3][3] = N;
 		pA[3][0] = pA[0][3];
 
-		solve(A, B, MM, DECOMP_EIG);
+		Mat M;
+		solve(A, B, M, DECOMP_EIG);
 
-		double* om = RTMatrix.ptr<double>();
-		om[0] = om[4] = pMM[0];
-		om[1] = -pMM[1];
-		om[3] = pMM[1];
-		om[2] = pMM[2];
-		om[5] = pMM[3];
+		return M;
+	}
+
+protected:
+	const int MIN_NUM_OF_FEATURES = 9;
+	Mat mPrevFrame; /**< Previous frame */
+	Ptr<MyFeature2D> mDetector; /**< Pointer to detector/descriptor object */
+	vector<KeyPoint> mPrevKeypoints; /**< Previously detected keypoints */
+	bool mRANSAC;
+
+	struct Transform
+	{
+		double tx;
+		double ty;
+		double cx;
+		double cy;
+		double angle;
+	};
+
+	/**
+	Find rigid transformation matrix for the next frame
+	@param frame		next frame
+	@return				transformation matrix
+	*/
+	virtual Transform processNextFrame(const Mat& frame) = 0;
+
+	/**
+	Get Trnasform structure with inforamtion about transformation between two points sets
+	@param before			points from descriptor
+	@param after			resulting points from tracker
+	*/
+	static Transform getTransform(const vector<Point2f>& before, const vector<Point2f>& after)
+	{
+		Mat M = getRTMatrix(before, after);
+		auto cos = M.at<double>(0);
+		auto sin = M.at<double>(1);
+		auto tx = M.at<double>(2);
+		auto ty = M.at<double>(3);
+
+		Transform result;
+		auto tg = sin / cos;
+		result.angle = atan(tg) * 180 / CV_PI;
+
+		if (abs(result.angle) > 0.001)
+		{
+			double Rdata[4] = { cos, -sin, sin, cos };
+			double Tdata[2] = { tx, ty };
+			Mat R(2, 2, CV_64F, Rdata);
+			Mat t(2, 1, CV_64F, Tdata);
+			Mat I = Mat::eye(R.size(), R.type());
+			Mat corMat = (I - R).inv() * t;
+			Point2f centerOfRotation = Point2f(corMat);
+			result.cx = centerOfRotation.x;
+			result.cy = centerOfRotation.y;
+			result.tx = tx + result.cx * (1.0 - cos) - result.cy*sin;
+			result.ty = ty + result.cx * sin - result.cy * (1.0 - cos);
+		}
+		else
+		{
+			result.tx = tx;
+			result.ty = ty;
+		}
+		
+		return result;
 	}
 
 	/**
@@ -104,7 +143,6 @@ protected:
 		{
 			int idx[RANSAC_SIZE0];
 			vector<Point2f> a(RANSAC_SIZE0), b(RANSAC_SIZE0);
-			Mat M(2, 3, CV_64F);
 
 			// choose random 3 non-complanar points from A & B
 			for (i = 0; i < RANSAC_SIZE0; i++)
@@ -163,14 +201,14 @@ protected:
 				continue;
 
 			// estimate the rigid transformation using drawn points
-			getRTMatrix(a, b, M);
+			Mat M = getRTMatrix(a, b);
 
 			//calculate how many points accurately follow transformation 
 			const double* m = M.ptr<double>();
 			for (i = 0, good_count = 0; i < count; i++)
 			{
-				if (abs(m[0] * pA[i].x + m[1] * pA[i].y + m[2] - pB[i].x) +
-					abs(m[3] * pA[i].x + m[4] * pA[i].y + m[5] - pB[i].y) < max(brect.width, brect.height)*0.05)
+				if (abs(m[0] * pA[i].x - m[1] * pA[i].y + m[2] - pB[i].x) +
+					abs(m[1] * pA[i].x + m[0] * pA[i].y + m[3] - pB[i].y) < max(brect.width, brect.height)*0.05)
 					good_idx[good_count++] = i;
 			}
 

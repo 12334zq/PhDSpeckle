@@ -183,6 +183,9 @@
     <ClInclude Include="MyCudaFast.h">
       <Filter>FeaturesMethods\FeatureDetectors</Filter>
     </ClInclude>
+    <ClInclude Include="MyStarDetector.h">
+      <Filter>FeaturesMethods\FeatureDetectors</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
