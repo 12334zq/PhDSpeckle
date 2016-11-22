@@ -66,13 +66,20 @@ class SparseLKOpticalFlow : public FeaturesMethod
 			if (!RANSAC(pA, pB, 0.5)) cout << "RANSAC failed!" << endl;
 		}
 
+		mPrevPoints2f = pB;
+		Transform result = getTransform(pA, pB);
+
 		if (mDrawResult)
 		{
+			auto COLOR_RED = Scalar(0, 0, 255);
+			auto COLOR_GREEN = Scalar(0, 255, 0);
+			auto COLOR_BLUE = Scalar(255, 255, 0);
 			img.copyTo(mResultImg);
 			cvtColor(mResultImg, mResultImg, CV_GRAY2BGR);
 
-			auto COLOR_RED = Scalar(0, 0, 255);
-			auto COLOR_GREEN = Scalar(0, 255, 0);
+			if(abs(result.angle) > 0.001)
+			circle(mResultImg, Point2f(result.cx, result.cy), mResultImg.cols / 60, COLOR_BLUE, CV_FILLED);
+
 			for (i = 0; i < pB.size(); ++i)
 			{
 				circle(mResultImg, pA[i], mResultImg.cols / 80, COLOR_RED, 2);
@@ -81,9 +88,7 @@ class SparseLKOpticalFlow : public FeaturesMethod
 			}
 		}
 
-		mPrevPoints2f = pB;
-
-		return getTransform(pA, pB);
+		return result;
 	}
 
 

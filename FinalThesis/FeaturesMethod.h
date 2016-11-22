@@ -77,7 +77,7 @@ protected:
 	@param before			points from descriptor
 	@param after			resulting points from tracker
 	*/
-	static Transform getTransform(const vector<Point2f>& before, const vector<Point2f>& after)
+	Transform getTransform(const vector<Point2f>& before, const vector<Point2f>& after) const
 	{
 		Mat M = getRTMatrix(before, after);
 		auto cos = M.at<double>(0);
@@ -105,6 +105,8 @@ protected:
 		}
 		else
 		{
+			result.cx = mPrevFrame.cols / 2.0 - 1;
+			result.cy = mPrevFrame.rows / 2.0 - 1;
 			result.tx = tx;
 			result.ty = ty;
 		}
