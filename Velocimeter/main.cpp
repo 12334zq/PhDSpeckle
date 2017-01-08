@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot1_0\\*.png";
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rotations\\*.png";
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\rot30_0\\*.png";
-	//String path = "0";
+	// String path = "0";
 	//String path = "C:\\Users\\Krzysztof\\Pictures\\Speckle\\out.mp4";
 
 	try
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 		else
 			imshow("Frame", frame);
 
-		if (waitKey(1) != -1) break;
+		if (waitKeyEx(1) != -1) break;
 	}
 
 	sumVelocity /= (frameNumber - timeAccDelay);

@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0EBCEDF0-FD13-4B82-A745-885C9CBF39BE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -76,9 +79,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(OPENCV_DIR)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OPENCV_DIR)\x64\vc14\lib;$(LibraryPath)</LibraryPath>
-    <ReferencePath>$(OPENCV_DIR)\x64\vc14\bin;$(VC_ReferencesPath_x64);</ReferencePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -87,9 +90,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(OPENCV_DIR)\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OPENCV_DIR)\x64\vc14\lib;$(LibraryPath)</LibraryPath>
-    <ReferencePath>$(OPENCV_DIR)\x64\vc14\bin;$(ReferencePath)</ReferencePath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -116,13 +119,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(OPENCVCUDA)\..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_aruco320d.lib;opencv_bgsegm320d.lib;opencv_bioinspired320d.lib;opencv_calib3d320d.lib;opencv_ccalib320d.lib;opencv_core320d.lib;opencv_cudaarithm320d.lib;opencv_cudabgsegm320d.lib;opencv_cudacodec320d.lib;opencv_cudafeatures2d320d.lib;opencv_cudafilters320d.lib;opencv_cudaimgproc320d.lib;opencv_cudalegacy320d.lib;opencv_cudaobjdetect320d.lib;opencv_cudaoptflow320d.lib;opencv_cudastereo320d.lib;opencv_cudawarping320d.lib;opencv_cudev320d.lib;opencv_datasets320d.lib;opencv_dnn320d.lib;opencv_dpm320d.lib;opencv_face320d.lib;opencv_features2d320d.lib;opencv_flann320d.lib;opencv_fuzzy320d.lib;opencv_highgui320d.lib;opencv_imgcodecs320d.lib;opencv_imgproc320d.lib;opencv_line_descriptor320d.lib;opencv_ml320d.lib;opencv_objdetect320d.lib;opencv_optflow320d.lib;opencv_phase_unwrapping320d.lib;opencv_plot320d.lib;opencv_reg320d.lib;opencv_rgbd320d.lib;opencv_saliency320d.lib;opencv_shape320d.lib;opencv_stereo320d.lib;opencv_stitching320d.lib;opencv_structured_light320d.lib;opencv_surface_matching320d.lib;opencv_text320d.lib;opencv_tracking320d.lib;opencv_video320d.lib;opencv_videoio320d.lib;opencv_xfeatures2d320d.lib;opencv_ximgproc320d.lib;opencv_xobjdetect320d.lib;opencv_xphoto320d.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OPENCVCUDA_DIR)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -146,7 +149,7 @@
       <AdditionalLibraryDirectories>$(OPENCV_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
@@ -156,7 +159,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(OPENCV_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
@@ -164,11 +167,18 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opencv_aruco320.lib;opencv_bgsegm320.lib;opencv_bioinspired320.lib;opencv_calib3d320.lib;opencv_ccalib320.lib;opencv_core320.lib;opencv_cudaarithm320.lib;opencv_cudabgsegm320.lib;opencv_cudacodec320.lib;opencv_cudafeatures2d320.lib;opencv_cudafilters320.lib;opencv_cudaimgproc320.lib;opencv_cudalegacy320.lib;opencv_cudaobjdetect320.lib;opencv_cudaoptflow320.lib;opencv_cudastereo320.lib;opencv_cudawarping320.lib;opencv_cudev320.lib;opencv_datasets320.lib;opencv_dnn320.lib;opencv_dpm320.lib;opencv_face320.lib;opencv_features2d320.lib;opencv_flann320.lib;opencv_fuzzy320.lib;opencv_highgui320.lib;opencv_imgcodecs320.lib;opencv_imgproc320.lib;opencv_line_descriptor320.lib;opencv_ml320.lib;opencv_objdetect320.lib;opencv_optflow320.lib;opencv_phase_unwrapping320.lib;opencv_plot320.lib;opencv_reg320.lib;opencv_rgbd320.lib;opencv_saliency320.lib;opencv_shape320.lib;opencv_stereo320.lib;opencv_stitching320.lib;opencv_structured_light320.lib;opencv_surface_matching320.lib;opencv_text320.lib;opencv_tracking320.lib;opencv_video320.lib;opencv_videoio320.lib;opencv_xfeatures2d320.lib;opencv_ximgproc320.lib;opencv_xobjdetect320.lib;opencv_xphoto320.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OPENCV_DIR)\x64\vc14\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\MyOpenCV.3.2.0\build\native\MyOpenCV.targets" Condition="Exists('..\packages\MyOpenCV.3.2.0\build\native\MyOpenCV.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\MyOpenCV.3.2.0\build\native\MyOpenCV.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MyOpenCV.3.2.0\build\native\MyOpenCV.targets'))" />
+  </Target>
 </Project>
